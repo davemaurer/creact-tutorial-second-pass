@@ -3,28 +3,42 @@ var Skill = React.createClass({
     return {editable: false}
   },
 
-  handleEdit() {
+  onUpdate() {
     if (this.state.editable) {
-      let name = this.refs.name.value;
-      let details = this.refs.details.value;
-      console.log('in handleEdit', this.state.editable, name, details);
+      let skill = {
+        id: this.props.skill.id,
+        name: this.refs.name.value,
+        details: this.refs.details.value
+      };
+
+      this.props.handleUpdate(skill);
     }
 
     this.setState({editable: !this.state.editable})
   },
 
-  onUpdate() {
-    if (this.state.editable) {
-      let id = this.props.skill.id;
-      let name = this.refs.name.value;
-      let details = this.refs.details.value;
-      let level = this.props.skill.level;
-
-      let skill = {id: id, name: name, details: details, level: level};
+  onUpdateLevel(action) {
+    if (this.canChangeLevel(action)) {
+      let level = this.getNewLevel(action);
+      let skill = {id: this.props.skill.id, level: level};
 
       this.props.handleUpdate(skill);
     }
-    this.setState({editable: !this.state.editable})
+  },
+
+  getNewLevel(action) {
+    let levels = ['bad', 'halfbad', 'fantastic'];
+    let level = levels.indexOf(this.props.skill.level);
+    let change = action === 'up' ? 1 : -1;
+
+    return action ? levels[level + change] : this.props.skill.level;
+  },
+
+  canChangeLevel(action, limit) {
+    let levels = ['bad', 'halfbad', 'fantastic'];
+    let index = levels.indexOf(this.props.skill.level);
+
+    return action === 'up' && index < 2 || action === 'down' && index > 0;
   },
 
   render() {
@@ -35,16 +49,30 @@ var Skill = React.createClass({
                                       : <p>{this.props.skill.details}</p>;
     return (
       <div>
+
         {name}
 
         <p><strong>Level:</strong> {this.props.skill.level}</p>
+
         {details}
 
         <button onClick={this.props.handleDelete}>
           Delete
         </button>
-
-        <button onClick={this.handleEdit}>{this.state.editable ? 'Submit' : 'Edit' }</button>
+        <button onClick={this.onUpdate}>{this.state.editable ? 'Submit' : 'Edit' }</button>
+        <div className='skill-level'>
+          <button type="button"
+                  className="btn btn-default btn-sm"
+                  onClick={this.onUpdateLevel.bind(this, 'down')}>
+            <span className="glyphicon glyphicon-triangle-bottom"></span>
+          </button>
+          <p><strong>Level:</strong> {this.props.skill.level}</p>
+          <button type="button"
+                  className="btn btn-default btn-sm"
+                  onClick={this.onUpdateLevel.bind(this, 'up')}>
+            <span className="glyphicon glyphicon-triangle-top"></span>
+          </button>
+        </div>
       </div>
     )
   }

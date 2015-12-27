@@ -17,6 +17,7 @@ var AllSkills = React.createClass({
         </div>
       )
     });
+
     return (
       <div>
         {skills}
